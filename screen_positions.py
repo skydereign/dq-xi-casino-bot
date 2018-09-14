@@ -6,14 +6,26 @@ positions = {
         [624, 237, 28, 28],
         [800, 237, 28, 28]
     ],
+    
+    "states":{
+        'start':[410, 385, 180, 90], # "Change Stake"
+        'hand_dealt':[461, 447, 71, 29], # "Deal"
 
-    "keep_icons": [
-        [110, 415, 66, 14],
-        [286, 415, 66, 14],
-        [463, 415, 66, 14],
-        [639, 415, 66, 14],
-        [815, 415, 66, 14]
-    ]
+        'loss':[212, 488, 144, 12], # "What a shame! Do you want to play again?"
+        'double_prompt':[212, 488, 144, 12], # "You can play Double or Nothing"
+    
+        'treasure':[212, 488, 144, 12], # "You've found a treasure"
+        'double':[212, 488, 144, 12], # "Try to pick a higher card"
+        'double_win':[212, 488, 144, 12], # "Nicely played! You win"
+        'treasure_unlock':[212, 488, 144, 12], # "Well done! You've removed all the locks!"
+        'double_end_with_treasure':[212, 488, 144, 12], # "It's the moment you've been waiting for",
+        'obtain_item':[212, 488, 144, 12], # "You obtain a piece of"
+        'play_again':[212, 488, 144, 12], # "Do you want to play poker again?"
+        'won_hand':[212, 488, 144, 12], # "Congratulations! You got"
+        'tie':[212, 488, 144, 12], # "It's the same value as the last card!"
+    
+        'win':[212, 488, 69, 12] # "You win"
+    }
 }
 
 
