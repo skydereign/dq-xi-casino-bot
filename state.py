@@ -45,7 +45,7 @@ def get(img):
 def enter(new_state, frame):
     global _last_state, _state
 
-    print 'CHANGESTATE,{},{}'.format(new_state, _state)
+    print('CHANGESTATE,{},{}'.format(new_state, _state))
     if _state != new_state:
         logging.info('enter state: ' + new_state)
 

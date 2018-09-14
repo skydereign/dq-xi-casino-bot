@@ -436,4 +436,4 @@ def process_hand(hand):
 if __name__ == '__main__':
     # print(sys.argv[1])
     hand = parse_hand(sys.argv[1])
-    print get_should_keep(hand)
+    print(get_should_keep(hand))

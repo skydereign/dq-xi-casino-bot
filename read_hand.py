@@ -70,5 +70,5 @@ if __name__ == '__main__':
         screen = cv2.imread(filename)
         hand = get(screen)
         if hand != card_names:
-            print 'hand not the same', hand, card_names
+            print('hand not the same', hand, card_names)
 

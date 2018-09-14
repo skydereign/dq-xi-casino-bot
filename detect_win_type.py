@@ -35,9 +35,9 @@ if __name__ == '__main__':
     import glob
 
     for filename in glob.glob('state_base/got_hand*'):
-        print filename
+        print(filename)
         img = cv2.imread(filename)
-        print get(img), '\n'
+        print(get(img), '\n')
 
 
     
