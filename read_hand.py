@@ -6,14 +6,16 @@ import re
 
 def convert(card):
     conversion = {'j':11, 'q':12, 'k':13, 'a':1}
+    suites = {'b':'s', 'r':'c', 'y':'h', 'g':'d'}
+    
     if card == 'joker':
         return (-1, 'W')
     elif card == 'back':
         return None
     elif card[1:] in conversion:
-        return (conversion[card[1:]], card[0])
+        return (conversion[card[1:]], suites[card[0]])
     else:
-        return (int(card[1:]), card[0])
+        return (int(card[1:]), suites[card[0]])
 
 def least_diff(img, compare_dict):
     img_channels = cv2.split(img)
