@@ -2,6 +2,7 @@
 # http://www.videopokerballer.com/strategy/jokers-wild/
 import collections
 import itertools
+import logging
 import sys
 
 # h = Hearts, s = Spades, c = Clubs, d = Diamonds, T = Ten, s = Suited.
@@ -16,7 +17,7 @@ def parse_hand(string):
     return l
 
 def allcards(hand):
-    v = filter(lambda x: x > 0, m.values())
+    v = list(filter(lambda x: x > 0, m.values()))
     return list(set(itertools.product(v, suites)).difference(set(hand)))
 
 def flush(hand):
@@ -41,8 +42,13 @@ def straight(hand):
     if sorted(s) == range(min(s), max(s)+1):
         return hand
 
+    if 1 in s:
+        low = s[1:] + [14]
+        if sorted(low) == range(min(low), max(low)+1):
+            return hand
+
 def suited(hand, cards):
-    qjt = filter(lambda x: x[0] in cards, hand)
+    qjt = list(filter(lambda x: x[0] in cards, hand))
     for check in list(itertools.combinations(qjt, len(cards))):
         if flush(check):
             return check
@@ -59,7 +65,7 @@ def pat_straight_flush(hand):
 def four(hand):
     c = collections.Counter(cards(hand))
     if 4 in c.values():
-        return filter(lambda x: c[x[0]] == 4, hand)
+        return list(filter(lambda x: c[x[0]] == 4, hand))
 
 # Royal Flush Draw 	19.8958 	Th-Jh-Qh-Kh-4h
 def rfd(hand):
@@ -96,7 +102,7 @@ def osfd(hand):
 def toak(hand):
     c = collections.Counter(cards(hand))
     if 3 in c.values():
-        return filter(lambda x: c[x[0]] == 3, hand)
+        return list(filter(lambda x: c[x[0]] == 3, hand))
 
 # Inside Straight Flush Draw 	3.1042 	Qs-Js-9s-8s-4c
 # combined with above
@@ -108,8 +114,8 @@ def patstraight(hand):
 # Two Pair 	1.6250 	3c-3s-4d-4h-Ac
 def tp(hand):
     c = collections.Counter(cards(hand))
-    if len(filter(lambda x: x == 2, c.values())) > 1:
-        return filter(lambda x: c[x[0]] == 2, hand)
+    if len(list(filter(lambda x: x == 2, c.values()))) > 1:
+        return list(filter(lambda x: c[x[0]] == 2, hand))
 
 # Q-J-T suited 	1.4424 	Qh-Jh-Th-4d-3d
 def qjts(hand):
@@ -128,9 +134,9 @@ def kqjskqtskjtsnfp(hand):
 # High Pair (Jacks or Better) 	1.5405 	Ac-Ad-Js-8c-5h
 def hpjob(hand):
     c = collections.Counter(cards(hand))
-    for k, v in c.iteritems():
+    for k, v in c.items():
         if v == 2 and k in [1, 11, 12, 13]:
-            return filter(lambda x: x[0] == k, hand)
+            return list(filter(lambda x: x[0] == k, hand))
 
 # Three to a Royal, A+K (w/ no St. or Fl. penalty*) 	1.4113 	Ac-Kc-Tc-Ts-5h
 # note: skipping the penalties for this one (difference is marginal)
@@ -141,7 +147,7 @@ def ttarak(hand):
         for i in draws:
             for two_draws in itertools.combinations(draws, 2):
                 z = list(combination) + list(two_draws)
-                if royal(z):
+                if royal(z) and flush(z):
                     return(combination)
 
 # Pair of Aces or Kings 	1.3997 	Ac-As-8s-5h-2h
@@ -183,16 +189,16 @@ def ttsf(hand):
 # Low Pair (Twos through Queens) 	0.7314 	3c-3s-7h-9h-Jc
 def lpttq(hand):
     c = collections.Counter(cards(hand))
-    for k, v in c.iteritems():
+    for k, v in c.items():
         if v == 2 and k in [2,3,4,5,6,7,8,9,10,11,12]:
-            return filter(lambda x: x[0] == k, hand)
+            return list(filter(lambda x: x[0] == k, hand))
 
 # 3 to a St. Flush, Open (w/ 1 or 2 St. Penalties*) 	0.7225 	3c-4c-5c-7s-8d
 # combined
 
 # K-Q-J-T 	0.6250 	Kc-Qs-Jc-Ts-2h
 def kqjt(hand):
-    f = filter(lambda x: x[0] in [10,11,12,13], hand)
+    f = list(filter(lambda x: x[0] in [10,11,12,13], hand))
     if len(f) >= 4:
         return f
 
@@ -224,8 +230,8 @@ def kqkjkts(hand):
 
 # A-K offsuit 	0.4506 	Ac-Ks-9h-6h-3s
 def akos(hand):
-    aces = filter(lambda x: x[0] == 1, hand)
-    kings = filter(lambda x: x[0] == 13, hand)
+    aces = list(filter(lambda x: x[0] == 1, hand))
+    kings = list(filter(lambda x: x[0] == 13, hand))
     if len(aces) == 1 and len(kings) == 1:
         for suit in map(lambda x: x[1], aces):
             if suit not in map(lambda x: x[1], kings):
@@ -244,7 +250,7 @@ def aqajats(hand):
 
 # Ace or King 	0.4469 	Ac-9s-7h-4s-2d
 def aok(hand):
-    aok = filter(lambda x: x[0] == 1 or x[0] == 13, hand)
+    aok = list(filter(lambda x: x[0] == 1 or x[0] == 13, hand))
     if len(aok) > 0:
         return aok
 
@@ -395,6 +401,9 @@ joker_methods = [pat_foak]
 
 def get_should_keep(hand):
     keepers = process_hand(hand)
+    if keepers is None:
+        return [False, False, False, False, False]
+
     should_keep = []
     
     for i in range(0, len(hand)):
@@ -405,7 +414,7 @@ def get_should_keep(hand):
 def process_hand(hand):
     methods = regular_methods
     if -1 in cards(hand):
-        hand = filter(lambda x: x[0] > 0, hand)
+        hand = list(filter(lambda x: x[0] > 0, hand))
         # print(hand)
         methods = joker_methods
         # instead of implementing the remainder of the joker strategies, use
@@ -416,7 +425,7 @@ def process_hand(hand):
             for method in regular_methods:
                 a = method(z)
                 if a:
-                    # print(str(method))
+                    logging.info('jokers choice,{}'.format(str(method)))
                     if i in a:
                         # print([x for x in a if x != i])
                         return [x for x in a if x != i]
@@ -428,12 +437,11 @@ def process_hand(hand):
         for method in methods:
             a = method(hand)
             if a:
-                # print(str(method))
+                logging.info('jokers choice,{}'.format(str(method)))
                 # print(a)
                 return(a)
     
 
 if __name__ == '__main__':
     # print(sys.argv[1])
-    hand = parse_hand(sys.argv[1])
-    print(get_should_keep(hand))
+    hand = process_hand(parse_hand(sys.argv[1]))
