@@ -40,6 +40,9 @@ positions = {
     ],
 
     "dialog_box": [197, 469, 603, 102],
+    
+    "tokens": [339, 527, 120, 20],
+    "stake": [535, 528, 120, 20],
 
     "states":{
         'start':[410, 385, 180, 90], # "Change Stake"
