@@ -25,6 +25,9 @@ positions = {
 
     "deal_focused": [452, 458, 11, 3],
 
+    "tokens":[339, 527, 120, 20],
+    "stake":[535, 528, 120, 20],
+
     "got_hands": [
         [397,  99, 30, 14], # Royal Jelly Flush  50000
         [397, 120, 30, 14], # Royal Flush        10000 
@@ -40,9 +43,6 @@ positions = {
     ],
 
     "dialog_box": [197, 469, 603, 102],
-    
-    "tokens": [339, 527, 120, 20],
-    "stake": [535, 528, 120, 20],
 
     "states":{
         'start':[410, 385, 180, 90], # "Change Stake"
@@ -60,6 +60,7 @@ positions = {
         'play_again':[212, 488, 144, 12], # "Do you want to play poker again?"
         'won_hand':[212, 488, 144, 12], # "Congratulations! You got"
         'tie':[212, 488, 144, 12], # "It's the same value as the last card!"
+        'treasure_trove':[212, 488, 144, 12], # "You receive"
     
         'win':[212, 488, 69, 12] # "You win"
     }
