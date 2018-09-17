@@ -1,25 +1,47 @@
+import screen_positions as pos
 import detect_win_type
+import numpy as np
+import read_tokens
+import traceback
 import read_hand
 import logging
 import jokers
 import state
 import glob
+import time
 import cv2
+import sys
+import mss
 import re
 
-PAYOUT_THRESHOLD = 1500
+
+PAYOUT_THRESHOLD = 4000
 expected_next_state = None
 base_value_of_hand = 0
 value_of_hand = 0
 round_num = 0
 prev_hand = None
+starting = 176255
+total_money = starting
 
-# get the index to store items
-item_count = -1
-for filename in glob.glob('items/*png'):
-    item_count = max(int(re.match(r'items/(.*).png').group(1)), item_count)
+def press_button(button):
+    print("press " + button)
+    sys.stdout.flush()
+    time.sleep(0.4)
 
-item_count += 1
+
+try:
+    # get the index to store items
+    item_count = -1
+    for filename in glob.glob('items/*png'):
+        item_count = max(int(re.match(r'items\\(.*).png', filename).group(1)), item_count)
+    
+    item_count += 1
+    
+except Exception as e:
+    print(str(e))
+    exit()
+
 
 def log_hand(frame):
     hand = read_hand.get(frame)
@@ -29,12 +51,21 @@ def log_hand(frame):
     return hand
 
 def start(frame, prev_state):
+    global total_money
+    current_money = read_tokens.get(frame)
+
+    if current_money:
+        total_money = current_money
+        print(total_money)
+
+    total_money -= 100
+    logging.info('pay 100,{}'.format(total_money))
     logging.info('reset hand')
-    print('press x')
+    press_button('x')
     return ['hand_dealt']
 
 def won_hand(frame, prev_state):
-    global base_value_of_hand, value_of_hand
+    global base_value_of_hand, value_of_hand, round_num
     win_type = detect_win_type.get(frame)
     log_hand(frame)
 
@@ -42,9 +73,12 @@ def won_hand(frame, prev_state):
         base_value_of_hand = win_type[1]
         value_of_hand = win_type[1]
         logging.info('won hand,{}'.format(win_type))
-
-    print('press x')
-    return ['double']
+        
+    round_num = 0
+    press_button('x')
+    press_button('wait')
+    press_button('x')
+    return ['double_prompt']
 
 def hand_dealt(frame, prev_state):
     # process hand
@@ -53,93 +87,120 @@ def hand_dealt(frame, prev_state):
 
     logging.info('keeping,{}'.format(keep))
 
-    for card in keep:
-        if card:
-            print('press x')
-            print('press right')
-            print('wait 0.3')
-        else:
-            print('press right')
+    # check if there are cards to keep
+    if True in keep:
+        for i in range(0, len(keep)):
+            if True not in keep[i:]:
+                # escape if done
+                break
 
-    print('press down')
-    print('press x')
+            card = keep[i]
+
+            if card:
+                press_button('x')
+                press_button('right')
+            else:
+                press_button('right')
+
+    press_button('down')
+    press_button('x')
     return ['won_hand', 'loss']
 
 def loss(frame, prev_state):
     # possibly new cards, store hand
     log_hand(frame)
-    print('press x')
+    press_button('wait')
+    press_button('x')
     return ['start']
 
 def double_prompt(frame, prev_state):
-    global round_num, value_of_hand
+    global round_num, value_of_hand, total_money
 
     round_num += 1
 
+    # require 3 rounds, but if it is over threshold after quit, otherwise wait for five rounds
+    if (value_of_hand >= PAYOUT_THRESHOLD and round_num > 2) or round_num > 4:
+        total_money += value_of_hand
+        logging.info('won,{},{}'.format(value_of_hand, total_money))
+        press_button('o')
+        return ['win']
+    
     if prev_state != 'won_han':
         print('double value_of_hand', value_of_hand)
         value_of_hand *= 2
 
-    if value_of_hand > PAYOUT_THRESHOLD:
-        print('press o')
-        return ['win']
-
-    print('press x')
+    press_button('x')
     return ['double', 'treasure']
 
 def treasure(frame, prev_state):
-    print('press x')
+    press_button('wait')
+    press_button('x')
     return ['double']
 
 def double(frame, prev_state):
     # don't have a state for double_select, for now always picks the first card
-    print('press x')
+    press_button('x')
     print('wait 0.3')
-    print('press x')
+    press_button('x')
 
     return ['double_end_with_treasure', 'double_win', 'tie', 'loss']
 
 def double_win(frame, prev_state):
     log_hand(frame)
-    print('press x')
+    press_button('x')
     return ['treasure_unlock', 'double_prompt']
 
 def treasure_unlock(frame, prev_state):
-    print('press x')
+    press_button('x')
     return ['double_prompt']
 
 def win(frame, prev_state):
-    print('press x')
+    press_button('x')
     return ['play_again', 'double_end_with_treasure']
 
 def tie(frame, prev_state):
     # store hand
     log_hand(frame)
     hand = read_hand.get(frame)
-    
+    press_button('x')
+
     return ['double']
 
 def double_end_with_treasure(frame, prev_state):
     log_hand(frame)
-    print('press x')
-    return ['obtain_item']
+    press_button('wait')
+    press_button('x')
+    return ['obtain_item', 'treasure_trove']
 
 def obtain_item(frame, prev_state):
     global item_count
     # store the item
     cv2.imwrite('items/{}.png'.format(item_count), pos.get(frame, 'dialog_box'))
-    
-    print('press x')
+    item_count += 1
+
+    press_button('wait')
+    press_button('x')
+
     return ['play_again']
 
+def treasure_trove(frame, prev_state):
+    global item_count
+    cv2.imwrite('items/{}.png'.format(item_count), pos.get(frame, 'dialog_box'))
+    item_count += 1
+
+    press_button('x')
+    return ["play_again"]
+
 def play_again(frame, prev_state):
-    print('press x')
+    press_button('x')
     return ['start']
 
-if __name__ == '__main__':
+def run():
+    global crashes
+
     logging.basicConfig(filename='output.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
     logging.info('start---------------------------------------------------------------------------')
-
+    
     state.transitions['start'] = start
     state.transitions['hand_dealt'] = hand_dealt
     state.transitions['loss'] = loss
@@ -154,15 +215,55 @@ if __name__ == '__main__':
     state.transitions['double_end_with_treasure'] = double_end_with_treasure
     state.transitions['obtain_item'] = obtain_item
     state.transitions['play_again'] = play_again
-        
-    frame = cv2.imread('state_base/card_focus_0.png')
-    state.enter(state.get(frame), frame, initial=True)
+    state.transitions['treasure_trove'] = treasure_trove
     
-    frame = cv2.imread('state_base/got_hand_full_house.png')
-    state.enter(state.get(frame), frame)
-    
-    frame = cv2.imread('state_base/double_prompt.png')
-    state.enter(state.get(frame), frame)
+    every_other = False
 
+    with mss.mss() as sct:
+        # Part of the screen to capture
+        monitor = {'top': 0, 'left': 0, 'width': 1920, 'height':1080 }
+
+        # grab region 
+        # templateMatch on region
+        # anchor monitor
+        
+        window_anchor = cv2.imread('misc/ps4_window_anchor.png', cv2.IMREAD_UNCHANGED)
+        frame = np.array(sct.grab(monitor))
+
+        res = cv2.matchTemplate(frame, window_anchor, cv2.TM_CCOEFF)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        top_left = max_loc
+        monitor['top'] = top_left[1]
+        monitor['left'] = top_left[0]
+        monitor['width'] = 995
+        monitor['height'] = 593
+      
+
+        while 'Screen capturing':
+            frame = np.array(sct.grab(monitor))
+    
+            small = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+            cv2.imshow('frame', small)
+
+            new_state = state.get(frame)
+            state.enter(state.get(frame), frame)
+            time.sleep(2)
+    
+            key = cv2.waitKey(1)
+            if key == 27 or key == ord('q'):
+                cv2.destroyAllWindows()
+                exit()
+
+            crashes = 0
+    
+crashes = 0
+
+while crashes < 3:
+    try:
+        run()
+    except Exception as e:
+        print(str(e))
+        print(traceback.format_exc())
+        crashes += 1
 
 logging.info('close---------------------------------------------------------------------------')
