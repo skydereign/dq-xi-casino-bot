@@ -4,7 +4,8 @@ import time
 import cv2
 
 states = [
-    'start',
+    'start_red',
+    'start_blue',
     'hand_dealt',
     'loss',
     'double_prompt',
@@ -42,7 +43,7 @@ def get(img):
         
     diffs.sort(key=lambda x: x[0])
 
-    if diffs[0][0] < 20:
+    if diffs[0][0] < 30:
         return diffs[0][1]
 
 

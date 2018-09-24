@@ -2,8 +2,8 @@ import screen_positions as pos
 import cv2
 
 
-yes = cv2.imread('misc/yes_hand.png')
-no = cv2.imread('misc/no_hand.png')
+yes = cv2.imread('misc/yes_hand.png', cv2.IMREAD_UNCHANGED)
+no = cv2.imread('misc/no_hand.png', cv2.IMREAD_UNCHANGED)
 
 win_types = [
     ['royal_jelly_flush', 50000],
@@ -18,7 +18,7 @@ win_types = [
     ['two_kind', 100]
 ]
 
-def get(img):
+def get(img, multiplier):
     num_win_types = pos.get_num('got_hands')
 
     for i in range(0, num_win_types):
@@ -27,7 +27,7 @@ def get(img):
         no_diff = cv2.absdiff(hand_region, no).mean()
 
         if yes_diff < 80 and no_diff > 80:
-            return win_types[i]
+            return [win_types[i][0], win_types[i][1] * multiplier]
 
     return None
 

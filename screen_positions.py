@@ -45,7 +45,8 @@ positions = {
     "dialog_box": [197, 469, 603, 102],
 
     "states":{
-        'start':[410, 385, 180, 90], # "Change Stake"
+        'start_red':[410, 385, 180, 90], # "Change Stake"
+        'start_blue':[410, 385, 180, 90], # "Change Stake"
         'hand_dealt':[461, 447, 71, 29], # "Deal"
 
         'loss':[212, 488, 144, 12], # "What a shame! Do you want to play again?"
