@@ -24,14 +24,14 @@ After it is all set up, open remote play and go to either the blue or red poker 
 
 ## About Poker
 
-Poker in DQXI can be played on three different tables, all seemingly equal except the amount you can bet on each hand. This program can be run on the red and blue tables, with stakes for either 1000 or 100 tokens. To really win substantial money in this version of poker, you need to rely on the double or nothing rounds. The chance of winning each consecutive round drops, starting around 80%, so the optimal strategy is to play more rounds of double or nothing. I've currently set it to attempt 10 rounds for two pair/three of a kind hands, and 4 rounds for all other hands.
+Poker in DQXI can be played on three different tables that differ in the amount you can bet, and seemingly the win percentages in double or nothing. This program can be run on the red and blue tables, with stakes for either 1000 or 100 tokens. To really win substantial money in this version of poker, you need to rely on the double or nothing rounds. The chance of winning each consecutive round drops, starting around 80% for the blue table, so the optimal strategy is to play more rounds of double or nothing. I've currently set it to attempt 10 rounds for two pair/three of a kind hands, and 4 rounds for all other hands.
 
-On the blue table the program would win on average **~475 tokens a minute** or **684000 every 24 hours**. The red table seems to use the same probabilities as the blue table, and will therefore have 10x winnings.
+For the blue table the program would win on average **~475 tokens a minute** or **684000 every 24 hours**. Theoretically the red table should allow for 10x profit, but from a 12 hours of playing on the red table, it seems the win rates of double are nothing are reduced. As it runs longer, I'll have a better idea, and be able to tweek the program to be more efficient. For now it is still aiming for that 10 round/1,024,000 token win.
 
 The algorithm to actually determine what cards to keep is based off of the one [described here.](http://www.videopokerballer.com/strategy/jokers-wild/)
 
 
-### Double or Nothing Win Rates by Round
+### Blue Table Double or Nothing Win Rates by Round
 
 |Round|Win %|Samples|
 |:-:|:-:|:-:|
