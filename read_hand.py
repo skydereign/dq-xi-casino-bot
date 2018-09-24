@@ -2,12 +2,14 @@ import screen_positions as pos
 import glob
 import cv2
 import re
-
+import sys
 
 def convert(card):
     conversion = {'j':11, 'q':12, 'k':13, 'a':1}
     suites = {'b':'s', 'r':'c', 'y':'h', 'g':'d'}
-    
+    print(card)
+    sys.stdout.flush()
+
     if card == 'joker':
         return (-1, 'W')
     elif card == 'back':
@@ -52,7 +54,7 @@ def load_all():
     filenames = glob.glob('cards/*png')
 
     for filename in filenames:
-        _cards[filename[:-4].split('/')[-1]] = cv2.imread(filename)
+        _cards[filename[:-4].split('\\')[-1]] = cv2.imread(filename)
 
 
 _cards = {}
