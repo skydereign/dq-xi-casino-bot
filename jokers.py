@@ -14,7 +14,7 @@ m = {"A": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "T"
 def parse_hand(string):
     l = map(lambda x: (m[x[0]], x[1]), string.split('-'))
     # print(l)
-    return l
+    return list(l)
 
 def allcards(hand):
     v = list(filter(lambda x: x > 0, m.values()))
@@ -39,12 +39,13 @@ def royal(hand):
 
 def straight(hand):
     s = cards(hand)
-    if sorted(s) == range(min(s), max(s)+1):
+    
+    if sorted(s) == list(range(min(s), max(s)+1)):
         return hand
 
     if 1 in s:
         low = s[1:] + [14]
-        if sorted(low) == range(min(low), max(low)+1):
+        if sorted(low) == list(range(min(low), max(low)+1)):
             return hand
 
 def suited(hand, cards):
@@ -445,3 +446,4 @@ def process_hand(hand):
 if __name__ == '__main__':
     # print(sys.argv[1])
     hand = process_hand(parse_hand(sys.argv[1]))
+    print(get_should_keep(parse_hand(sys.argv[1])))
