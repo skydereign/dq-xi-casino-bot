@@ -39,7 +39,7 @@ def royal(hand):
 
 def straight(hand):
     s = cards(hand)
-    
+
     if sorted(s) == list(range(min(s), max(s)+1)):
         return hand
 
@@ -445,5 +445,6 @@ def process_hand(hand):
 
 if __name__ == '__main__':
     # print(sys.argv[1])
-    hand = process_hand(parse_hand(sys.argv[1]))
-    print(get_should_keep(parse_hand(sys.argv[1])))
+    # hand = process_hand(parse_hand(sys.argv[1]))
+    hand = parse_hand(sys.argv[1])
+    print(get_should_keep(hand))
